@@ -1,0 +1,13 @@
+{
+  "name": "SpeseMese",
+  "short_name": "SpeseMese",
+  "description": "Tracker spese mensili",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#ffffff",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

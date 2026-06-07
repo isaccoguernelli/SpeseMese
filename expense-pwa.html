@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SpeseMese" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <title>SpeseMese</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f2f2f7; --card: #ffffff; --text: #000; --text2: #6e6e73;
+      --border: rgba(0,0,0,0.1); --accent: #007aff; --danger: #ff3b30;
+      --success: #34c759; --input-bg: rgba(118,118,128,0.12);
+      --safe-top: env(safe-area-inset-top); --safe-bot: env(safe-area-inset-bottom);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#1c1c1e; --card:#2c2c2e; --text:#fff; --text2:#8e8e93; --border:rgba(255,255,255,0.1); --input-bg:rgba(118,118,128,0.24); }
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; padding-bottom: calc(80px + var(--safe-bot)); }
+    .topbar { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: calc(var(--safe-top) + 12px) 16px 12px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    .topbar-inner { display: flex; align-items: center; justify-content: space-between; }
+    .month-nav { display: flex; align-items: center; gap: 12px; }
+    .month-nav button { background: var(--input-bg); border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; color: var(--accent); display: flex; align-items: center; justify-content: center; }
+    .month-label { font-size: 18px; font-weight: 600; min-width: 160px; text-align: center; }
+    .export-btn { background: none; border: none; color: var(--accent); font-size: 14px; cursor: pointer; padding: 4px 8px; }
+    .content { padding: 0 16px; }
+    .metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 12px 0; }
+    .metric { background: var(--card); border-radius: 14px; padding: 12px 10px; }
+    .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+    .metric-val { font-size: 18px; font-weight: 600; }
+    .metric-val.danger { color: var(--danger); }
+    .add-card { background: var(--card); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+    .add-card input, .add-card select { background: var(--input-bg); border: none; border-radius: 10px; padding: 10px 12px; font-size: 15px; color: var(--text); width: 100%; margin-bottom: 8px; -webkit-appearance: none; outline: none; }
+    .add-card input::placeholder { color: var(--text2); }
+    .row2 { display: flex; gap: 8px; }
+    .row2 input { flex: 1; }
+    .row2 select { flex: 1.2; }
+    .add-btn { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 2px; }
+    .section-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; margin: 16px 0 6px; }
+    .exp-list { background: var(--card); border-radius: 16px; overflow: hidden; margin-bottom: 12px; }
+    .exp-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 0.5px solid var(--border); }
+    .exp-row:last-child { border-bottom: none; }
+    .cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .exp-info { flex: 1; min-width: 0; }
+    .exp-desc { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .exp-meta { font-size: 12px; color: var(--text2); margin-top: 1px; }
+    .exp-amt { font-size: 15px; font-weight: 600; flex-shrink: 0; }
+    .exp-del { background: none; border: none; color: var(--text2); font-size: 20px; cursor: pointer; padding: 0 0 0 8px; flex-shrink: 0; }
+    .empty { text-align: center; padding: 32px 16px; color: var(--text2); font-size: 15px; }
+    .chart-card { background: var(--card); border-radius: 16px; padding: 14px; margin-bottom: 20px; }
+    .chart-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .cat-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .cat-bar-label { font-size: 13px; color: var(--text2); min-width: 90px; display: flex; align-items: center; gap: 6px; }
+    .cat-bar-track { flex: 1; height: 7px; background: var(--input-bg); border-radius: 4px; overflow: hidden; }
+    .cat-bar-fill { height: 100%; border-radius: 4px; transition: width 0.35s ease; }
+    .cat-bar-val { font-size: 13px; font-weight: 600; min-width: 60px; text-align: right; }
+    .install-banner { display: none; background: var(--card); border-radius: 16px; padding: 14px; margin-bottom: 12px; font-size: 14px; color: var(--text2); line-height: 1.5; border: 1px solid var(--border); }
+    .install-banner strong { color: var(--text); }
+    @media (display-mode: standalone) { .install-banner { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="month-nav">
+        <button id="prev-m" aria-label="Mese precedente">‹</button>
+        <span class="month-label" id="month-label"></span>
+        <button id="next-m" aria-label="Mese successivo">›</button>
+      </div>
+      <button class="export-btn" id="export-btn">↓ CSV</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="install-banner" id="install-banner">
+      📲 <strong>Aggiungi alla schermata Home</strong><br>
+      Tocca <strong>Condividi</strong> → <strong>"Aggiungi alla schermata Home"</strong> per usarla come app.
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Totale</div><div class="metric-val danger" id="m-total">€0</div></div>
+      <div class="metric"><div class="metric-label">Spese</div><div class="metric-val" id="m-count">0</div></div>
+      <div class="metric"><div class="metric-label">Media</div><div class="metric-val" id="m-avg">€0</div></div>
+    </div>
+
+    <div class="add-card">
+      <input type="text" id="f-desc" placeholder="Descrizione (es. Supermercato…)" autocomplete="off" />
+      <div class="row2">
+        <input type="number" id="f-amt" placeholder="€ Importo" min="0" step="0.01" inputmode="decimal" />
+        <select id="f-cat">
+          <option value="Cibo">🍔 Cibo</option>
+          <option value="Trasporti">🚇 Trasporti</option>
+          <option value="Casa">🏠 Casa</option>
+          <option value="Salute">💊 Salute</option>
+          <option value="Shopping">🛍️ Shopping</option>
+          <option value="Svago">🎬 Svago</option>
+          <option value="Altro">📦 Altro</option>
+        </select>
+      </div>
+      <button class="add-btn" id="add-btn">+ Aggiungi spesa</button>
+    </div>
+
+    <div class="section-title">Transazioni</div>
+    <div class="exp-list" id="exp-list"></div>
+
+    <div class="section-title">Per categoria</div>
+    <div class="chart-card"><div id="cat-chart"></div></div>
+  </div>
+
+  <script>
+    const CAT_COLORS = { 'Cibo':'#ff3b30','Trasporti':'#007aff','Casa':'#34c759','Salute':'#ff2d55','Shopping':'#ff9500','Svago':'#5856d6','Altro':'#8e8e93' };
+    const MONTHS = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    let cur = new Date();
+    const key = () => cur.getFullYear()+'-'+cur.getMonth();
+    const load = () => { try { return JSON.parse(localStorage.getItem('spm_'+key())||'[]'); } catch(e){ return []; } };
+    const save = (d) => localStorage.setItem('spm_'+key(), JSON.stringify(d));
+    const fmt = n => '€'+n.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+    function render() {
+      document.getElementById('month-label').textContent = MONTHS[cur.getMonth()]+' '+cur.getFullYear();
+      const exps = load();
+      const total = exps.reduce((s,e)=>s+e.amt,0);
+      document.getElementById('m-total').textContent = fmt(total);
+      document.getElementById('m-count').textContent = exps.length;
+      document.getElementById('m-avg').textContent = exps.length ? fmt(total/exps.length) : '€0';
+      const list = document.getElementById('exp-list');
+      if (!exps.length) { list.innerHTML = '<div class="empty">Nessuna spesa questo mese 🎉</div>'; }
+      else {
+        list.innerHTML = [...exps].reverse().map((e,i)=>{
+          const ri = exps.length-1-i;
+          return `<div class="exp-row">
+            <span class="cat-dot" style="background:${CAT_COLORS[e.cat]||'#8e8e93'}"></span>
+            <div class="exp-info"><div class="exp-desc">${e.desc}</div><div class="exp-meta">${e.cat} · ${e.date}</div></div>
+            <span class="exp-amt">${fmt(e.amt)}</span>
+            <button class="exp-del" data-i="${ri}" aria-label="Elimina">×</button>
+          </div>`;
+        }).join('');
+        list.querySelectorAll('.exp-del').forEach(b=>b.addEventListener('click',()=>{
+          const d=load(); d.splice(+b.dataset.i,1); save(d); render();
+        }));
+      }
+      const byCat={};
+      exps.forEach(e=>{ byCat[e.cat]=(byCat[e.cat]||0)+e.amt; });
+      const sorted=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+      const cc=document.getElementById('cat-chart');
+      if(!sorted.length){cc.innerHTML='<div style="color:var(--text2);font-size:14px;text-align:center;padding:12px 0;">Nessun dato.</div>';return;}
+      cc.innerHTML=sorted.map(([cat,amt])=>{
+        const pct=total>0?(amt/total*100):0;
+        return `<div class="cat-bar-row">
+          <span class="cat-bar-label"><span class="cat-dot" style="background:${CAT_COLORS[cat]||'#8e8e93'}"></span>${cat}</span>
+          <span class="cat-bar-track"><span class="cat-bar-fill" style="width:${pct.toFixed(1)}%;background:${CAT_COLORS[cat]||'#8e8e93'}"></span></span>
+          <span class="cat-bar-val">${fmt(amt)}</span>
+        </div>`;
+      }).join('');
+    }
+
+    document.getElementById('prev-m').addEventListener('click',()=>{ cur=new Date(cur.getFullYear(),cur.getMonth()-1,1); render(); });
+    document.getElementById('next-m').addEventListener('click',()=>{ cur=new Date(cur.getFullYear(),cur.getMonth()+1,1); render(); });
+
+    document.getElementById('add-btn').addEventListener('click',()=>{
+      const desc=document.getElementById('f-desc').value.trim();
+      const amt=parseFloat(document.getElementById('f-amt').value);
+      const cat=document.getElementById('f-cat').value;
+      if(!desc||isNaN(amt)||amt<=0) return;
+      const today=new Date();
+      const date=today.getDate().toString().padStart(2,'0')+'/'+(today.getMonth()+1).toString().padStart(2,'0');
+      const d=load(); d.push({desc,amt,cat,date}); save(d);
+      document.getElementById('f-desc').value='';
+      document.getElementById('f-amt').value='';
+      render();
+    });
+    document.getElementById('f-desc').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('f-amt').focus(); });
+    document.getElementById('f-amt').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('add-btn').click(); });
+
+    document.getElementById('export-btn').addEventListener('click',()=>{
+      const exps=load(); if(!exps.length) return;
+      const rows=[['Data','Descrizione','Categoria','Importo'],...exps.map(e=>[e.date,e.desc,e.cat,e.amt.toFixed(2)])];
+      const csv=rows.map(r=>r.join(';')).join('\n');
+      const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+      a.download='spese_'+MONTHS[cur.getMonth()]+'_'+cur.getFullYear()+'.csv'; a.click();
+    });
+
+    if(navigator.standalone===false) document.getElementById('install-banner').style.display='block';
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+    render();
+  </script>
+</body>
+</html>
