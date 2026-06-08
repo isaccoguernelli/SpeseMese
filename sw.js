@@ -1,4 +1,4 @@
-const CACHE = 'spesemese-v1';
+const CACHE = 'spesemese-v2';
 const FILES = ['./index.html', './manifest.json', './icon.png'];
 
 self.addEventListener('install', e => {
