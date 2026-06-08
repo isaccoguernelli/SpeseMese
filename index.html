@@ -20,8 +20,10 @@
       --safe-top: env(safe-area-inset-top); --safe-bot: env(safe-area-inset-bottom);
     }
     @media (prefers-color-scheme: dark) {
-      :root { --bg:#1c1c1e; --card:#2c2c2e; --text:#fff; --text2:#8e8e93; --border:rgba(255,255,255,0.1); --input-bg:rgba(118,118,128,0.24); }
+      :root:not([data-theme="light"]) { --bg:#1c1c1e; --card:#2c2c2e; --text:#fff; --text2:#8e8e93; --border:rgba(255,255,255,0.1); --input-bg:rgba(118,118,128,0.24); }
     }
+    [data-theme="dark"] { --bg:#1c1c1e; --card:#2c2c2e; --text:#fff; --text2:#8e8e93; --border:rgba(255,255,255,0.1); --input-bg:rgba(118,118,128,0.24); }
+    [data-theme="light"] { --bg:#f2f2f7; --card:#ffffff; --text:#000; --text2:#6e6e73; --border:rgba(0,0,0,0.1); --input-bg:rgba(118,118,128,0.12); }
     body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; padding-bottom: calc(80px + var(--safe-bot)); }
     .topbar { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: calc(var(--safe-top) + 12px) 16px 12px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
     .topbar-inner { display: flex; align-items: center; justify-content: space-between; }
@@ -73,7 +75,10 @@
         <span class="month-label" id="month-label"></span>
         <button id="next-m" aria-label="Mese successivo">›</button>
       </div>
-      <button class="export-btn" id="export-btn">↓ CSV</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="theme-btn" style="background:none;border:none;font-size:20px;cursor:pointer;padding:2px 6px;">🌙</button>
+        <button class="export-btn" id="export-btn">↓ CSV</button>
+      </div>
     </div>
   </div>
 
@@ -114,7 +119,7 @@
   </div>
 
   <script>
-    const CAT_COLORS = { 'Cibo':'#ff3b30','Trasporti':'#007aff','Casa':'#34c759','Salute':'#ff2d55','Shopping':'#ff9500','Svago':'#5856d6','Altro':'#8e8e93' };
+    const CAT_COLORS = { 'Cibo':'#ff3b30','Trasporti':'#007aff','Casa':'#34c759','Salute':'#30d158','Shopping':'#ff9500','Svago':'#5856d6','Altro':'#8e8e93' };
     const MONTHS = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     let cur = new Date();
     const key = () => cur.getFullYear()+'-'+cur.getMonth();
@@ -188,6 +193,18 @@
 
     if(navigator.standalone===false) document.getElementById('install-banner').style.display='block';
     if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+    const themeBtn = document.getElementById('theme-btn');
+    const root = document.documentElement;
+    let darkMode = localStorage.getItem('spm_theme') === 'dark';
+    function applyTheme() {
+      if(darkMode) { root.setAttribute('data-theme','dark'); themeBtn.textContent='☀️'; }
+      else { root.removeAttribute('data-theme'); themeBtn.textContent='🌙'; }
+      localStorage.setItem('spm_theme', darkMode ? 'dark' : 'light');
+    }
+    themeBtn.addEventListener('click', () => { darkMode=!darkMode; applyTheme(); });
+    if(!darkMode && localStorage.getItem('spm_theme')==='light') darkMode=false;
+    applyTheme();
     render();
   </script>
 </body>
